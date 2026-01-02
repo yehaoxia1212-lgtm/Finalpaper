@@ -22,3 +22,4 @@ env/
 Thumbs.db  # Windows系统文件
 /HFDM/data_taxi/san/data_san_original.geojson
 /HFDM/出租车仿真数据/仿真车辆数据/
+/HFDM/res_taxi/taxi_k/pic_k/
