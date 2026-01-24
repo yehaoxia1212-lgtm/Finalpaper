@@ -27,3 +27,9 @@ Thumbs.db  # Windows系统文件
 /HFDM/pic_result/
 /LFDM/出租车仿真数据/
 /HFDM/res_heat/
+/LFDM/san/data_taxi/cabspottingdata/
+/LFDM/longquanyi/data_taxi/data_sample/
+/LFDM/longquanyi/data_taxi/final_clean_trips/
+/LFDM/san/data_taxi/final_clean_trips/
+/LFDM/san/data_taxi/匹配shp/
+/LFDM/longquanyi/data_taxi/匹配shp/
