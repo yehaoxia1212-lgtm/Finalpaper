@@ -33,3 +33,5 @@ Thumbs.db  # Windows系统文件
 /LFDM/san/data_taxi/final_clean_trips/
 /LFDM/san/data_taxi/匹配shp/
 /LFDM/longquanyi/data_taxi/匹配shp/
+/LFDM/manhattan/data_bike/roadmap_bike_manhattan/
+/LFDM/manhattan/data_bike/原始共享单车数据/
