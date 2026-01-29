@@ -7,11 +7,11 @@ import numpy as np
 from collections import defaultdict
 
 # 读取所有的站点数据
-station_data = pd.read_csv("data/数据清洗之后的单车数据/每天开始时刻各站点所需的车辆数.csv")
+station_data = pd.read_csv("data_bike/数据清洗之后的单车数据/每天开始时刻各站点所需的车辆数.csv")
 station_id_list = station_data["station_id"].tolist()
 station_id_list = [int(i) for i in station_id_list]
 
-file_route = "data/Manhattan_bike_road_network/"
+file_route = "data_bike/roadmap_bike_manhattan/"
 # 读取邻接矩阵数据（numpy格式）
 with open(file_route + "shortest_lengths_dict.pickle", 'rb') as f:
     shortest_lengths_dict = pickle.load(f)
@@ -32,7 +32,7 @@ for no in range(1, 32):
         filename = f"trip_data_{date_str}.csv"
     else:
         filename = f"trip_data_{date_str}.csv"
-    file_path = os.path.join("data/数据清洗之后的单车数据/vehicle_num_new", filename)
+    file_path = os.path.join("data_bike/数据清洗之后的单车数据/vehicle_num_new", filename)
     # 读取CSV文件
     df = pd.read_csv(file_path, usecols=['station_id', '1200'])
     # 遍历每一行数据
@@ -42,7 +42,7 @@ for no in range(1, 32):
         # 将站点需求添加到当天的字典中
         delta_fleet_size_every_day_dic[(no, station_id)] = fleet_size
 
-start_vehicle_num_data = pd.read_csv("data/数据清洗之后的单车数据/每天开始时刻各站点所需的车辆数.csv")
+start_vehicle_num_data = pd.read_csv("data_bike/数据清洗之后的单车数据/每天开始时刻各站点所需的车辆数.csv")
 # 存储每天开始时刻各个站点的共享单车的数量字典,格式（日期，站点）：车辆数
 start_vehicle_num_every_day_dic = {}
 # 遍历日期
@@ -56,12 +56,12 @@ for no in range(1, 32):
 
 
 # 读取共享单车调度数据（字典格式）
-with open("data/数据清洗之后的单车数据/仅考虑运营情况下共享单车每天的调度计划.pickle", 'rb') as f:
+with open("data_bike/数据清洗之后的单车数据/仅考虑运营情况下共享单车每天的调度计划.pickle", 'rb') as f:
     bike_dispatch_dic = pickle.load(f)
 
 # 存储各路段长度字典
 edge_length_dic = {}
-edge_data = pd.read_excel("data/Manhattan_bike_road_network/edge.xls")
+edge_data = pd.read_excel("data_bike/roadmap_bike_manhattan/edge.xlsx")
 for _, row in edge_data.iterrows():
     edge_id = int(row['edge_id'])
     length = row["length"] / 1000
@@ -72,16 +72,16 @@ edge_list = edge_data["edge_id"].tolist()
 k_value_dic = {}
 for s in station_id_list:
     # 读取这个站点的二项分布参数
-    k_data = pd.read_csv("data/二项分布/station_k_values/" + str(s) + "_k_values.csv")
+    k_data = pd.read_csv("data_bike/二项分布/station_k_values/" + str(s) + "_k_values.csv")
     for _, row in k_data.iterrows():
         edge_id = int(row['edge_id'])
         k_value = row["k_value"]
         k_value_dic[(s, edge_id)] = k_value
 
 
-def Model_first_day(station_id_list, edge_list, edge_length_dic, start_vehicle_num_every_day_dic, k_value_dic):
+def Model_first_day(station_id_list, edge_list, edge_length_dic, start_vehicle_num_every_day_dic, k_value_dic,N_k):
     K = 1
-    M = 1000  # 一个很大的数
+    M = 10000  # 一个很大的数
 
     # 创建一个模型
     D1_model = Model("D1_model")
@@ -134,14 +134,14 @@ def Model_first_day(station_id_list, edge_list, edge_length_dic, start_vehicle_n
         sensor_num_dic[s] = x_start_1[s].x
     return sensor_num_dic
 
-N_k = 100
-first_day_sensor_num_dic = Model_first_day(station_id_list, edge_list, edge_length_dic, start_vehicle_num_every_day_dic, k_value_dic)
+for N_k in [500,400,300,200,100]:
+    first_day_sensor_num_dic = Model_first_day(station_id_list, edge_list, edge_length_dic, start_vehicle_num_every_day_dic, k_value_dic,N_k)
 
-# 存储数据
+    # 存储数据
 
-# sensor_num_dic 形如 {station_id: 整数}
-df = pd.DataFrame(
-    {"Sensor": first_day_sensor_num_dic.keys(),
-     "Count":      first_day_sensor_num_dic.values()}
-)
-df.to_csv("data/传感器布设优化/Four_day/sensor_first_day_" + str(N_k) + ".csv", index=False, columns=["Sensor", "Count"])
+    # sensor_num_dic 形如 {station_id: 整数}
+    df = pd.DataFrame(
+        {"Sensor": first_day_sensor_num_dic.keys(),
+         "Count":      first_day_sensor_num_dic.values()}
+    )
+    df.to_csv("data_bike/传感器布设优化/Four_day/sensor_first_day_" + str(N_k) + ".csv", index=False, columns=["Sensor", "Count"])
